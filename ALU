@@ -1,0 +1,205 @@
+// 100 days of RTL
+
+// Abilash P
+
+// calculator
+
+module ALU(clk, rst, a, b, ctrl, res);
+ 
+  parameter ADD      = 4'b0000;
+  parameter SUB      = 4'b0001;
+  parameter MUL      = 4'b0010;
+  parameter DIV      = 4'b0011;
+  parameter MOD      = 4'b0100;
+  parameter POW      = 4'b0101;
+  parameter L_LEFT   = 4'b0110;
+  parameter L_RIGHT  = 4'b0111;
+  parameter A_LEFT   = 4'b1000;
+  parameter A_RIGHT  = 4'b1001;
+  parameter INC      = 4'b1010;
+  parameter DEC      = 4'b1011;
+  parameter B_AND    = 4'b1100;
+  parameter B_OR     = 4'b1101;
+  parameter B_XOR    = 4'b1110;
+  parameter B_NOT    = 4'b1111;
+  
+  input clk, rst;
+  input [3:0]ctrl;
+  input [7:0]a, b;    //max input 1111 (15)
+  output reg[7:0]res;
+  
+  reg[3:0]state, next_state;
+  
+  always @(posedge clk)
+    begin
+      if(rst)
+        state<=ADD;
+      else
+        state<=next_state;
+    end
+  
+  function [3:0] n_state;
+    input [3:0]ctrl;
+    begin
+       if(ctrl==1)
+            n_state<=SUB;
+          else
+            begin
+              if(ctrl==2)
+                n_state<=MUL;
+              else
+                begin
+                  if(ctrl==3)
+                    n_state<=DIV;
+                  else
+                    begin
+                      if(ctrl==4)
+                        n_state<=MOD;
+                      else
+                        begin
+                          if(ctrl==5)
+                            n_state<=POW;
+                          else
+                            begin
+                              if(ctrl==6)
+                                n_state<=L_LEFT;
+                              else
+                                begin
+                                  if(ctrl==7)
+                                    n_state<=L_RIGHT;
+                                  else
+                                    begin
+                                      if(ctrl==8)
+                                        n_state<=A_LEFT;
+                                      else
+                                        begin
+                                          if(ctrl==9)
+                                            n_state<=A_RIGHT;
+                                          else
+                                            begin
+                                              if(ctrl==10)
+                                                n_state<=INC;
+                                              else
+                                                begin
+                                                  if(ctrl==11)
+                                                    n_state<=DEC;
+                                                  else
+                                                    begin
+                                                      if(ctrl==12)
+                                                        n_state<=B_AND;
+                                                      else
+                                                        begin
+                                                          if(ctrl==13)
+                                                            n_state<=B_OR;
+                                                          else
+                                                            begin
+                                                              if(ctrl==14)
+                                                                n_state<=B_XOR;
+                                                              else
+                                                                begin
+                                                                  if(ctrl==15)
+                                                                    n_state<=B_NOT;
+                                                                  else
+                                                                    n_state<=ADD;
+                                                                end
+                                                            end
+                                                        end
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+  endfunction
+  
+  always @(state or ctrl)
+    begin
+      case(state)
+        ADD: begin
+          res = a + b;
+          next_state<=n_state(ctrl);
+        end
+        
+        SUB: begin
+          res = a - b;
+          next_state<=n_state(ctrl);
+        end
+        
+        MUL: begin
+          res = a * b;
+          next_state<=n_state(ctrl);
+        end
+        
+        DIV: begin
+          res = a / b;
+          next_state<=n_state(ctrl);
+        end
+        
+        MOD: begin
+          res = a % b;
+          next_state<=n_state(ctrl);
+        end
+        
+        POW: begin
+          res = a ** b;
+          next_state<=n_state(ctrl);
+        end
+        
+        L_LEFT: begin
+          res = a << b;
+          next_state<=n_state(ctrl);
+        end
+        
+        L_RIGHT: begin
+          res = a >> b;
+          next_state<=n_state(ctrl);
+        end
+        
+        A_LEFT: begin
+          res = a <<< b;
+          next_state<=n_state(ctrl);
+        end
+        
+        A_RIGHT: begin
+          res = $signed(a) >>> b;
+          next_state<=n_state(ctrl);
+        end
+        
+        INC: begin
+          res = a + 1;
+          next_state<=n_state(ctrl);
+        end
+        
+        DEC: begin
+          res = a - 1;
+          next_state<=n_state(ctrl);
+        end
+        
+        B_AND: begin
+          res = a & b;
+          next_state<=n_state(ctrl);
+        end
+        
+        B_OR: begin
+          res = a | b;
+          next_state<=n_state(ctrl);
+        end
+        
+        B_XOR: begin
+          res = a ^ b;
+          next_state<=n_state(ctrl);
+        end
+        
+        B_NOT: begin
+          res = ~a;
+          next_state<=n_state(ctrl);
+        end
+      endcase
+    end
+endmodule
